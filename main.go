@@ -7,16 +7,8 @@ import (
 
 	"github.com/IPoWS/node-core/ip64"
 	"github.com/IPoWS/node-core/link"
-	"github.com/IPoWS/node-core/upper"
 	"github.com/sirupsen/logrus"
 )
-
-type txtservice struct {
-}
-
-func (s *txtservice) Handle(srcport uint16, destport uint16, data *[]byte) {
-	fmt.Println(data)
-}
 
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
@@ -29,9 +21,6 @@ func main() {
 		err = link.ListenAccess()
 		if err == nil {
 			logrus.Debugln("[NCL] listen succ.")
-			ts := upper.Service(new(txtservice))
-			upper.Register(1, &ts)
-			logrus.Debugln("[NCL] service registered.")
 			time.Sleep(time.Second)
 			logrus.Debugln("[NCL] enter loop.")
 			for {
