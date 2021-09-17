@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/IPoWS/node-core/ip64"
@@ -10,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// nps myent myname listenport
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.Debugln("[NCL] start.")
@@ -18,27 +20,32 @@ func main() {
 	err := link.Register()
 	if err == nil {
 		logrus.Debugln("[NCL] reg succ.")
-		err = link.ListenAccess()
+		port, err := strconv.Atoi(os.Args[4])
 		if err == nil {
-			logrus.Debugln("[NCL] listen succ.")
-			time.Sleep(time.Second)
-			logrus.Debugln("[NCL] enter loop.")
-			for {
-				var i uint64
-				s := make([]byte, 512)
-				fmt.Print("Enter ip:")
-				fmt.Scanf("%x", &i)
-				fmt.Print("Enter msg:")
-				fmt.Scanln(&s)
-				_, err = link.Send(i, &s, ip64.DataType, 1, 1)
-				if err != nil {
-					logrus.Errorln("[NCL] send err:", err)
-				} else {
-					logrus.Infof("[NCL] send to %x succ.", i)
+			err = link.ListenAccess(uint16(port))
+			if err == nil {
+				logrus.Debugln("[NCL] listen succ.")
+				time.Sleep(time.Second)
+				logrus.Debugln("[NCL] enter loop.")
+				for {
+					var i uint64
+					s := make([]byte, 512)
+					fmt.Print("Enter ip:")
+					fmt.Scanf("%x", &i)
+					fmt.Print("Enter msg:")
+					fmt.Scanln(&s)
+					_, err = link.Send(i, &s, ip64.DataType, 1, 1)
+					if err != nil {
+						logrus.Errorln("[NCL] send err:", err)
+					} else {
+						logrus.Infof("[NCL] send to %x succ.", i)
+					}
 				}
+			} else {
+				logrus.Errorln("[NCL] listen access err:", err)
 			}
 		} else {
-			logrus.Errorln("[NCL] listen access err:", err)
+			panic(err)
 		}
 	}
 }
